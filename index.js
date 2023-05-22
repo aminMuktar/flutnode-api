@@ -15,6 +15,7 @@ const swaggerUi = require("swagger-ui-express"), swaggerDocument = require("./sw
  * With useUnifiedTopology, the MongoDB driver sends a heartbeat every heartbeatFrequencyMS to check on the status of the connection.
  * A heartbeat is subject to serverSelectionTimeoutMS , so the MongoDB driver will retry failed heartbeats for up to 30 seconds by default.
  */
+mongoose.set('strictQuery', true);
 mongoose.Promise = global.Promise;
 mongoose
   .connect(MONGO_DB_CONFIG.DB, {
