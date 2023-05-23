@@ -1,35 +1,47 @@
-// IMPORTS FROM PACKAGES
 const express = require("express");
-const mongoose = require("mongoose");
-const adminRouter = require("./routes/admin");
-// IMPORTS FROM OTHER FILES
-const authRouter = require("./routes/auth");
-const productRouter = require("./routes/product");
-const userRouter = require("./routes/user");
-
-// INIT
-const PORT = process.env.PORT || 3000;
 const app = express();
-const DB =
-  "mongodb+srv://amin:5AOZGPvL5YenuLWP@cluster0.r0ofpnk.mongodb.net/amazon?retryWrites=true&w=majority";
+const mongoose = require("mongoose");
+const { MONGO_DB_CONFIG } = require("./config/app.config");
+const errors = require("./middleware/errors.js");
+const swaggerUi = require("swagger-ui-express"), swaggerDocument = require("./swagger.json");
 
-// middleware
-app.use(express.json());
-app.use(authRouter);
-app.use(adminRouter);
-app.use(productRouter);
-app.use(userRouter);
+// connect to mongodb
 
-// Connections
+/**
+ * With useNewUrlParser: The underlying MongoDB driver has deprecated their current connection string parser.
+ * Because this is a major change, they added the useNewUrlParser flag to allow users to fall back to the old parser if they find a bug in the new parser.
+ * You should set useNewUrlParser: true unless that prevents you from connecting.
+ *
+ * With useUnifiedTopology, the MongoDB driver sends a heartbeat every heartbeatFrequencyMS to check on the status of the connection.
+ * A heartbeat is subject to serverSelectionTimeoutMS , so the MongoDB driver will retry failed heartbeats for up to 30 seconds by default.
+ */
+mongoose.Promise = global.Promise;
 mongoose
-  .connect(DB)
-  .then(() => {
-    console.log("Connection Successful");
+  .connect(MONGO_DB_CONFIG.DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
-  .catch((e) => {
-    console.log(e);
-  });
+  .then(
+    () => {
+      console.log("Database connected");
+    },
+    (error) => {
+      console.log("Database can't be connected: " + error);
+    }
+  );
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`connected at port ${PORT}`);
+app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
+
+// initialize routes
+app.use("/api", require("./routes/app.routes"));
+
+app.use(errors.errorHandler);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// listen for requests
+app.listen(process.env.port || 5000, function () {
+  console.log("Ready to Go!");
 });
