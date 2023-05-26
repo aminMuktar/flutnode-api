@@ -24,7 +24,7 @@ exports.create = (req, res, next) => {
           return next(error);
         }
         return res.status(200).send({
-          message: "Success",
+          message: res.statusCode,
           data: results,
         });
       });
@@ -60,7 +60,7 @@ exports.findOne = (req, res, next) => {
       return next(error);
     }
     return res.status(200).send({
-      message: "Success",
+      message: res.statusCode,
       data: results,
     });
   });
@@ -92,7 +92,7 @@ exports.update = (req, res, next) => {
           return next(error);
         }
         return res.status(200).send({
-          message: "Success",
+          message: res.statusCode,
           data: results,
         });
       });
@@ -111,7 +111,7 @@ exports.delete = (req, res, next) => {
       return next(error);
     }
     return res.status(200).send({
-      message: "Success",
+      message: res.statusCode,
       data: results,
     });
   });
